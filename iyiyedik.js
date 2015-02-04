@@ -1,7 +1,7 @@
 function findTotalinMessage(message) {
   var value = 0;
   var test1 = /Genel Toplam:<\/strong><\/td><td align="right" style="text-align:right"><strong>([0-9]*\,?[0-9]*) TL<\/strong>/;
-  var test2 = /Toplam<strong> :  [\s\S]* <\/strong>[\s\S]*([0-9]*\,?[0-9]*) TL/;
+  var test2 = /Toplam<strong> :  [\s\S]* (?:<\/strong>)?[\s\S]([0-9]*\,?[0-9]*) TL/;
   
   var amount = test1.exec(message)
   if (amount != null){
@@ -55,8 +55,6 @@ function get_or_init_spreadsheet(){
     ozet.setName('ozet');
     ozet.appendRow(["","","Toplam:","=sum(B2:B1048576)"]);
     newChart("A:B", ozet, Charts.ChartType.BAR);
-    
-    //ozet.appendRow(["Asagidan yil secin"]);
     ozet.autoResizeColumn(1);
     
   } else {
@@ -74,11 +72,10 @@ function getOrderConfirmations() {
   var messages = [];
   var cache = CacheService.getUserCache();
   var spreadsheet = get_or_init_spreadsheet();
-  
-  var threads = GmailApp.search('subject: "yemeksepeti sipariş onay "  from:yemeksepeti.com');
   var current_year = 0;
-  for (var i = current; i < threads.length; i++) {
+  var threads = GmailApp.search('subject: "yemeksepeti sipariş onay "  from:yemeksepeti.com');
 
+  for (var i = current; i < threads.length; i++) {
     var message = threads[i].getMessages()[0];
     var message_body = message.getBody();
     var amount = findTotalinMessage(message_body);
@@ -98,7 +95,6 @@ function getOrderConfirmations() {
       current_year = year;
     }
 
-    
     sheet.appendRow([message.getDate(), amount, total, message.getDate().getMonth(), message.getDate().getDay()]);
     //Utilities.sleep(500);
     cache.put("current", i);
@@ -118,6 +114,7 @@ function doGet() {
 
 
 function resetCache(){
+  // Cache seems to be set again after this function. 
   var cache = CacheService.getUserCache();
   cache.put("current", 0);
   cache.put("total", 0);
@@ -127,7 +124,6 @@ function resetCache(){
   
   cache.put("current", 0);
   cache.put("total", 0);
-  
   
   Logger.log("reset cache");
   return HtmlService.createHtmlOutput("reset cache "+ cache.get('current') + cache.get('total'));
