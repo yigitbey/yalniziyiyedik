@@ -1,2 +1,2 @@
-# totalorder
+# readme
 yemek siparisi toplami hesaplayicisi
