@@ -79,36 +79,9 @@ function get_or_init_spreadsheet(){
   } else {
     var spreadsheet = SpreadsheetApp.openByUrl(spreadsheet_url);
   }
-
-  
   return spreadsheet;
 
 }
-
-function removeTrigger(triggerId) {
-
-  // Loop over all triggers.
-  var allTriggers = ScriptApp.getProjectTriggers();
-  for (var i = 0; i < allTriggers.length; i++) {
-    var t = allTriggers[i].getUniqueId();
-    if (t == triggerId){
-      ScriptApp.deleteTrigger(allTriggers[i]);
-      break;
-    }
-  }
-}
-
-function removeAllTriggers() {
-
-  // Loop over all triggers.
-  var allTriggers = ScriptApp.getProjectTriggers();
-  for (var i = 0; i < allTriggers.length; i++) {
-    var t = allTriggers[i].getUniqueId();
-    Utilities.sleep(10000);
-    ScriptApp.deleteTrigger(allTriggers[i]);
-  }
-}
-
 
 function getOrderConfirmations() {
   var total = parseFloat(get_or_init_cache('total'));
@@ -146,15 +119,6 @@ function getOrderConfirmations() {
     cache.put("total", total);
     cache.put("current_year", current_year);
     
-    /*removeTrigger(cache.get('trigger_id'));
-
-    var trigger = ScriptApp.newTrigger('getOrderConfirmations')
-      .timeBased()
-      .after(30000)
-      .create();
-    var trigger_id = trigger.getUniqueId();
-    cache.put('trigger_id', trigger_id);
-    */
   }
   Logger.log(total);
   
@@ -176,7 +140,7 @@ function doGet() {
 
 
 function resetCache(){
-  // Cache seems to be set again after this function. 
+  // Cache seems to be set again after this function if the previous request is interrupted.
   var cache = CacheService.getUserCache();
   cache.put("current", 0);
   cache.put("total", 0);
